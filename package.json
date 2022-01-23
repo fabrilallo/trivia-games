@@ -7,14 +7,37 @@
     "test": "test"
   },
   "scripts": {
-    "test": "tap \"test/**/*.test.js\"",
+    "test": "tap --bail \"test/**/*.test.js\"",
     "start": "fastify start -l info lib/app.js",
-    "dev": "fastify start -w -l info -P lib/app.js"
+    "dev": "fastify start -w -l info -P lib/app.js",
+    "lint": "semistandard",
+    "lint:fix": "semistandard --fix",
+    "commit": "cz"
   },
   "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "tap": {
+    "node-arg": [
+      "--no-warnings",
+      "--experimental-loader",
+      "@istanbuljs/esm-loader-hook"
+    ],
+    "nyc-arg": [
+      "--all",
+      "--exclude=**/app.js"
+    ],
+    "branches": "80",
+    "lines": "80",
+    "functions": "80",
+    "statements": "80"
+  },
   "dependencies": {
     "desm": "^1.2.0",
     "fastify": "^3.0.0",
@@ -25,6 +48,9 @@
     "fluent-schema": "^1.1.0"
   },
   "devDependencies": {
+    "commitizen": "^4.2.4",
+    "cz-conventional-changelog": "^3.3.0",
+    "semistandard": "^16.0.1",
     "tap": "^15.1.6"
   }
 }
