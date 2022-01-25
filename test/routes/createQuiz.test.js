@@ -1,10 +1,9 @@
 
 import { test } from 'tap';
-import { build } from '../../../helper.js';
+import { build } from '../helper.js';
 
 test('POST /quizzes route', async (t) => {
-  const app = await build(t);
-
+  t.plan(10);
   t.test('should create the quiz and return 201', async (t) => {
     const body = {
       name: 'Guess my name',
@@ -17,17 +16,14 @@ test('POST /quizzes route', async (t) => {
               isCorrect: true
             },
             {
-
               name: 'Giovanni',
               isCorrect: false
             },
             {
-
               name: 'Marco',
               isCorrect: false
             },
             {
-
               name: 'Luca',
               isCorrect: false
             }
@@ -35,6 +31,44 @@ test('POST /quizzes route', async (t) => {
         }
       ]
     };
+    const responseBody = {
+      id: 12,
+      name: 'Guess my name',
+      questions: [
+        {
+          id: 43,
+          name: "What's your name?",
+          answers: [
+            {
+              id: 163,
+              name: 'Fabrizio',
+              isCorrect: true
+            },
+            {
+              id: 164,
+              name: 'Giovanni',
+              isCorrect: false
+            },
+            {
+              id: 165,
+              name: 'Marco',
+              isCorrect: false
+            },
+            {
+              id: 166,
+              name: 'Luca',
+              isCorrect: false
+            }
+          ]
+        }
+      ]
+    };
+    const app = await build(t, {
+      quiz: {
+        create: () => responseBody
+      }
+    });
+
     const response = await app.inject({
       method: 'POST',
       url: '/quizzes',
@@ -42,11 +76,12 @@ test('POST /quizzes route', async (t) => {
     });
 
     const parsedResponse = response.json();
-    t.same(parsedResponse.data, body);
+    t.same(parsedResponse.data, responseBody);
     t.equal(parsedResponse.statusCode, 201);
   });
 
-  t.test('should return a bad request error because there is no quiz name', async (t) => {
+  t.test('should return a bad request error because there is no quiz name in the body request', async (t) => {
+    const app = await build(t);
     const body = {
       questions: [
         {
@@ -87,7 +122,9 @@ test('POST /quizzes route', async (t) => {
     t.equal(parsedResponse.statusCode, 400);
   });
 
-  t.test('should return a bad request error because there are no questions', async (t) => {
+  t.test('should return a bad request error because there are no questions in the body request', async (t) => {
+    const app = await build(t);
+
     const body = {
       name: 'Guess my name'
     };
@@ -102,7 +139,9 @@ test('POST /quizzes route', async (t) => {
     t.equal(parsedResponse.statusCode, 400);
   });
 
-  t.test('should return a bad request error because there are no questions', async (t) => {
+  t.test('should return a bad request error because there are no questions in the body request', async (t) => {
+    const app = await build(t);
+
     const body = {
       name: 'Guess my name'
     };
@@ -118,6 +157,8 @@ test('POST /quizzes route', async (t) => {
   });
 
   t.test('should return a bad request error because questions must be an array', async (t) => {
+    const app = await build(t);
+
     const body = {
       name: 'Guess my name',
       questions: {}
@@ -133,7 +174,9 @@ test('POST /quizzes route', async (t) => {
     t.equal(parsedResponse.statusCode, 400);
   });
 
-  t.test('should return a bad request error because questions array must have at least one element', async (t) => {
+  t.test('should return a bad request error because questions array in the body request must have at least one element', async (t) => {
+    const app = await build(t);
+
     const body = {
       name: 'Guess my name',
       questions: []
@@ -149,7 +192,9 @@ test('POST /quizzes route', async (t) => {
     t.equal(parsedResponse.statusCode, 400);
   });
 
-  t.test('should return a bad request error because answers array must have 4 elements', async (t) => {
+  t.test('should return a bad request error because answers array in the body request must have 4 elements', async (t) => {
+    const app = await build(t);
+
     const body = {
       name: 'Guess my name',
       questions: [
@@ -176,7 +221,9 @@ test('POST /quizzes route', async (t) => {
     t.equal(parsedResponse.statusCode, 400);
   });
 
-  t.test('should return a bad request error because there are duplicated questions', async (t) => {
+  t.test('should return a bad request error because there are duplicated questions in the body request', async (t) => {
+    const app = await build(t);
+
     const body = {
       name: 'Guess my name',
       questions: [
@@ -242,7 +289,9 @@ test('POST /quizzes route', async (t) => {
     t.equal(parsedResponse.statusCode, 400);
   });
 
-  t.test('should return a bad request error because there is more than one correct answer', async (t) => {
+  t.test('should return a bad request error because there is more than one correct answer in the body request', async (t) => {
+    const app = await build(t);
+
     const body = {
       name: 'Guess my name',
       questions: [
@@ -284,7 +333,9 @@ test('POST /quizzes route', async (t) => {
     t.equal(parsedResponse.statusCode, 400);
   });
 
-  t.test('should return a bad request error because there are 2 answer with same name and different isCorrect values', async (t) => {
+  t.test('should return a bad request error because there are 2 answer with same name and different isCorrect values in the body request', async (t) => {
+    const app = await build(t);
+
     const body = {
       name: 'Guess my name',
       questions: [

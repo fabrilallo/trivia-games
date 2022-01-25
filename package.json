@@ -1,13 +1,13 @@
 {
-  "name": "lib",
+  "name": "trivia-games-api",
   "version": "1.0.0",
-  "description": "This project was bootstrapped with Fastify-CLI.",
+  "description": "Trivia Games API",
   "main": "lib/app.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "tap --bail \"test/**/*.test.js\"",
+    "test": "tap --timeout=60000 \"test/**/*.test.js\"",
     "start": "fastify start -l info lib/app.js",
     "dev": "fastify start -w -l info -P lib/app.js",
     "lint": "semistandard",
@@ -16,7 +16,7 @@
   },
   "type": "module",
   "keywords": [],
-  "author": "",
+  "author": "Fabrizio Lallo",
   "license": "ISC",
   "config": {
     "commitizen": {
@@ -31,7 +31,8 @@
     ],
     "nyc-arg": [
       "--all",
-      "--exclude=**/app.js"
+      "--exclude=**/app.js",
+      "--exclude=**/prismaClient.js"
     ],
     "branches": "80",
     "lines": "80",
@@ -39,6 +40,7 @@
     "statements": "80"
   },
   "dependencies": {
+    "@prisma/client": "^3.8.1",
     "desm": "^1.2.0",
     "fastify": "^3.0.0",
     "fastify-autoload": "^3.10.0",
@@ -48,8 +50,10 @@
     "fluent-schema": "^1.1.0"
   },
   "devDependencies": {
+    "@istanbuljs/esm-loader-hook": "^0.1.2",
     "commitizen": "^4.2.4",
     "cz-conventional-changelog": "^3.3.0",
+    "prisma": "^3.8.1",
     "semistandard": "^16.0.1",
     "tap": "^15.1.6"
   }

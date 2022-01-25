@@ -2,10 +2,9 @@
 // This file contains code that we reuse
 // between our tests.
 
-import { build as buildApplication } from 'fastify-cli/helper.js';
-import { join } from 'desm';
-const appPath = join(import.meta.url, '../lib/app.js');
-
+import Fastify from 'fastify';
+import fp from 'fastify-plugin';
+import App from '../lib/app.js';
 // Fill in this config with all the configurations
 // needed for testing the application
 export function config () {
@@ -13,17 +12,57 @@ export function config () {
 }
 
 // automatically build and tear down our instance
-export async function build (t) {
-  // you can set all the options supported by the fastify CLI command
-  const argv = [appPath];
+export async function build (t, opts = {}) {
+  const app = new Fastify();
+  opts.prismaMock = buildPrismaMock(opts);
 
-  // fastify-plugin ensures that all decorators
-  // are exposed for testing purposes, this is
-  // different from the production setup
-  const app = await buildApplication(argv, config());
+  await app.register(fp(App), { testing: true, ...opts });
 
   // tear down our app after we are done
   t.teardown(app.close.bind(app));
 
   return app;
+}
+
+export function buildPrismaMock (opts) {
+  const models = {
+    quiz: opts.quiz
+      ? opts.quiz
+      : {
+          create: () => {},
+          update: () => {},
+          findUnique: () => {},
+          delete: () => {},
+          findMany: () => {}
+        },
+    question: opts.question
+      ? opts.question
+      : {
+          create: () => {},
+          update: () => {},
+          findUnique: () => {},
+          delete: () => {},
+          findMany: () => {}
+        },
+    answer: opts.answer
+      ? opts.answer
+      : {
+          create: () => {},
+          update: () => {},
+          findUnique: () => {},
+          delete: () => {},
+          findMany: () => {}
+        }
+  };
+  const prismaClient = {
+    $connect: () => {},
+    $disconnect: () => {},
+    $transaction: opts.$transaction
+      ? opts.$transaction
+      : (fn) => fn({ ...models }),
+    ...models
+
+  };
+
+  return prismaClient;
 }
