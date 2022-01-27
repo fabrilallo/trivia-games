@@ -18,14 +18,47 @@
 
 This API lets you simply create quizzes with questions and answers. The project is written in pure `Javascript` and based on `Node.js`.
 The project architecture is guided by Fastify, taking advantage of its plugin architecture (https://www.fastify.io/docs/latest/)
+A quiz has the following structure:
+```json
+{
+      "name": string,
+      "questions": [
+        {
+          "name": string,
+          "answers": [
+            {
+              "name": string,
+              "isCorrect": boolean
+            },
+            {
 
+              "name": string,
+              "isCorrect": boolean
+            },
+            {
+
+              "name": string,
+              "isCorrect": boolean
+            },
+            {
+
+              "name": string,
+              "isCorrect": boolean
+            }
+          ]
+        }
+      ]
+    }
+```
+Although there may be only one correct answer, every answer has an `isCorrect` field, in order to support future multiple choice questions.
 
 ### Built With
-* Fastify
-* Prisma
+:zap: Fastify
+</br>
+:gem: Prisma
 
 The project has a main folder called `lib` which contains the 2 main plugins: `quiz` and `user`
-The `quiz` plugin has all the logic required to create, edit, read and delete quizzes. While the plugin `user` has all the logic to create, edit and delete users.
+The `quiz` plugin has all the logic required to create, edit, read and delete quizzes. While the plugin `user` encapusalates all the logic to create, edit and delete users.
 The `plugins` folder contains all the common plugins shared across the code by quiz and user. The `prisma` folder contains the schema model of the database and the migrations needed to create the tables and a first user ready to use.
 Fastify
 
@@ -75,7 +108,7 @@ To get a local copy up and running follow these simple example steps.
    
 Now you're ready to use the Trivia games API.
 
-Or maybe you run some tests? Then simply run:
+Or maybe you wanna run some tests? Then simply run:
    ```sh
    yarn test
    ```
@@ -179,10 +212,10 @@ Now you can call any API using the `token` provided by the login. You need to pu
     }
    ```
 ### Delete a quiz
-`DELETE /quizzes/:id` </ br>
+`DELETE /quizzes/:id`
 
 ### Get quizzes
-`GET /quizzes` </ br>
+`GET /quizzes`
 
 ## User
 
@@ -203,7 +236,7 @@ Now you can call any API using the `token` provided by the login. You need to pu
 }
    ```
 ### Delete a user
-`DELETE /users/:id` </ br>
+`DELETE /users/:id`
 
 ## Auth
 ### Login
