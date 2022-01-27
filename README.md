@@ -17,7 +17,8 @@
 
 
 This API lets you simply create quizzes with questions and answers. The project is written in pure `Javascript` and based on `Node.js`.
-The project architecture is guided by Fastify, taking advantage of its plugin architecture (https://www.fastify.io/docs/latest/)
+The project architecture is guided by Fastify, taking advantage of its plugin architecture (https://www.fastify.io/docs/latest/) 
+</br>
 A quiz has the following structure:
 ```json
 {
@@ -50,6 +51,7 @@ A quiz has the following structure:
       ]
     }
 ```
+Every quiz must have at least one question and each question must have 4 answers.
 Although there may be only one correct answer, every answer has an `isCorrect` field, in order to support future multiple choice questions.
 
 ### Built With
@@ -59,7 +61,8 @@ Although there may be only one correct answer, every answer has an `isCorrect` f
 
 The project has a main folder called `lib` which contains the 2 main plugins: `quiz` and `user`
 The `quiz` plugin has all the logic required to create, edit, read and delete quizzes. While the plugin `user` encapusalates all the logic to create, edit and delete users.
-The `plugins` folder contains all the common plugins shared across the code by quiz and user. The `prisma` folder contains the schema model of the database and the migrations needed to create the tables and a first user ready to use.
+The `plugins` folder contains all the common plugins shared across the code by quiz and user.
+`PostgreSQL` is used as database and Prisma as ORM. So in the `prisma` folder there are the schema model of the database and the migrations needed to create the tables and a first user ready to use.
 Fastify
 
 <!-- GETTING STARTED -->
@@ -70,7 +73,7 @@ To get a local copy up and running follow these simple example steps.
 ### Prerequisites
 
 * `node 14.18.3` https://nodejs.org/download/release/latest-v14.x/
-* `yarn or npm` https://classic.yarnpkg.com/lang/en/docs/install/#debian-stable
+* `yarn` https://classic.yarnpkg.com/lang/en/docs/install/#debian-stable or `npm`
 * `docker-compose` https://docs.docker.com/compose/install/
 
 
