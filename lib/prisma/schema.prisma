@@ -14,9 +14,11 @@ datasource db {
 model Quiz {
   id    Int     @default(autoincrement()) @id
   name String  @unique
+  userId Int?
+  user User? @relation(fields: [userId], references: [id] ,onDelete: Cascade, onUpdate: Cascade )
   questions Question[]
-  updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Question {
@@ -25,16 +27,26 @@ model Question {
   quizId Int
   quiz Quiz @relation(fields: [quizId], references: [id] ,onDelete: Cascade, onUpdate: Cascade )
   answers Answer[]
-  updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Answer {
   id    Int     @default(autoincrement()) @id
-  name String
+  name String 
   isCorrect Boolean 
   questionId Int
   question Question @relation(fields: [questionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id    Int     @default(autoincrement()) @id
+  email String  @unique
+  password String 
+  token String?
+  quizzes Quiz[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

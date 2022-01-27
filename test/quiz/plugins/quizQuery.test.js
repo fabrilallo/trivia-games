@@ -1,10 +1,10 @@
 
 import { test } from 'tap';
-import { build } from '../helper.js';
+import { buildQuizPlugin } from '../../helper.js';
 
 test('createQuiz()', async (t) => {
   t.plan(3);
-  t.test('should return the correct quiz updated', async (t) => {
+  t.test('should return the correct quiz created', async (t) => {
     const quiz = {
       name: 'Guess my name',
       questions: [
@@ -34,14 +34,13 @@ test('createQuiz()', async (t) => {
         }
       ]
     };
-    const app = await build(t, {
-      quiz: {
-        create: () => quiz
-      }
+    const app = await buildQuizPlugin(t, {
+      quiz: { create: () => quiz }
     });
 
     const response = await app.createQuiz({
-      quiz
+      quiz,
+      userId: 1
     });
     t.same(response, quiz);
   });
@@ -82,14 +81,16 @@ test('createQuiz()', async (t) => {
         this.code = 'P2002';
       }
     }
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
         create: () => { throw new CustomError(); }
       }
     });
 
     await t.rejects(app.createQuiz({
-      quiz
+      quiz,
+      userId: 1
+
     }), new Error(`A quiz named ${quiz.name} already exists`));
   });
 
@@ -124,14 +125,15 @@ test('createQuiz()', async (t) => {
       ]
     };
 
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
         create: () => { throw new Error('error occurred'); }
       }
     });
 
     await t.rejects(app.createQuiz({
-      quiz
+      quiz,
+      userId: 1
     }), new Error('Internal Server Error'));
   });
 });
@@ -170,16 +172,17 @@ test('updateQuiz()', async (t) => {
         }
       ]
     };
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
-        findUnique: () => quiz,
+        findMany: () => [quiz],
         update: () => {}
       }
     });
 
     const response = await app.updateQuiz({
       quiz,
-      quizId: 1
+      quizId: 1,
+      userId: 1
     });
     t.same(response, quiz);
   });
@@ -247,16 +250,18 @@ test('updateQuiz()', async (t) => {
         }
       ]
     };
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
-        findUnique: () => quizToReturn,
+        findMany: () => [quizToReturn],
         update: () => {}
       }
     });
 
     const response = await app.updateQuiz({
       quiz: quizToUpdate,
-      quizId: 1
+      quizId: 1,
+      userId: 1
+
     });
     t.same(response, quizToReturn);
   });
@@ -297,15 +302,18 @@ test('updateQuiz()', async (t) => {
     const quizToUpdate = {
       name: 'Guess my name!!!'
     };
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
-        update: () => quizToReturn
+        update: () => quizToReturn,
+        findMany: () => [quizToReturn]
       }
     });
 
     const response = await app.updateQuiz({
       quiz: quizToUpdate,
-      quizId: 1
+      quizId: 1,
+      userId: 1
+
     });
     t.same(response, quizToReturn);
   });
@@ -348,7 +356,7 @@ test('updateQuiz()', async (t) => {
         this.code = 'P2025';
       }
     }
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
 
       $transaction: () => { throw new CustomError(); }
 
@@ -356,7 +364,9 @@ test('updateQuiz()', async (t) => {
 
     await t.rejects(app.updateQuiz({
       quiz,
-      quizId: 1
+      quizId: 1,
+      userId: 1
+
     }), new Error('A quiz with id 1 does not exist'));
   });
 
@@ -393,14 +403,16 @@ test('updateQuiz()', async (t) => {
       ]
     };
 
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       $transaction: () => { throw new Error('error occurred'); }
 
     });
 
     await t.rejects(app.updateQuiz({
       quiz,
-      quizId: 1
+      quizId: 1,
+      userId: 1
+
     }), new Error('Internal Server Error'));
   });
 });
@@ -440,24 +452,24 @@ test('getQuizzes()', async (t) => {
         }
       ]
     }];
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
         findMany: () => quizzes
       }
     });
 
-    const response = await app.getQuizzes();
+    const response = await app.getQuizzes({ userId: 1 });
     t.same(response, quizzes);
   });
 
   t.test('should throw an internal error when prisma throws an error', async (t) => {
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
         findMany: () => { throw new Error('error occurred'); }
       }
     });
 
-    await t.rejects(app.getQuizzes(), new Error('Internal Server Error'));
+    await t.rejects(app.getQuizzes({ userId: 1 }), new Error('Internal Server Error'));
   });
 });
 
@@ -496,13 +508,15 @@ test('deleteQuiz()', async (t) => {
         }
       ]
     };
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
-        delete: () => quiz
+        delete: () => quiz,
+        findMany: () => [quiz]
+
       }
     });
 
-    const response = await app.deleteQuiz({ id: 1 });
+    const response = await app.deleteQuiz({ id: 1, userId: 1 });
     t.same(response, quiz);
   });
 
@@ -513,22 +527,346 @@ test('deleteQuiz()', async (t) => {
         this.code = 'P2025';
       }
     }
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
-        delete: () => { throw new CustomError(); }
+        delete: () => { throw new CustomError(); },
+        findMany: () => [undefined]
       }
     });
 
-    await t.rejects(app.deleteQuiz({ id: 1 }), new Error('A quiz with id 1 does not exist'));
+    await t.rejects(app.deleteQuiz({ id: 1, userId: 1 }), new Error('A quiz with id 1 does not exist'));
   });
 
   t.test('should throw an internal error when prisma throws an error', async (t) => {
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
         delete: () => { throw new Error('error occurred'); }
       }
     });
 
-    await t.rejects(app.deleteQuiz({ id: 1 }), new Error('Internal Server Error'));
+    await t.rejects(app.deleteQuiz({ id: 1, userId: 1 }), new Error('Internal Server Error'));
+  });
+});
+
+test('getQuizById()', async (t) => {
+  t.plan(3);
+  t.test('should return the quiz', async (t) => {
+    const quiz = {
+      name: 'Guess my name',
+      questions: [
+        {
+          name: "What's your name?",
+          answers: [
+            {
+              name: 'Fabrizio',
+              isCorrect: true
+            },
+            {
+
+              name: 'Giovanni',
+              isCorrect: false
+            },
+            {
+
+              name: 'Marco',
+              isCorrect: false
+            },
+            {
+
+              name: 'Luca',
+              isCorrect: false
+            }
+          ]
+        }
+      ]
+    };
+    const app = await buildQuizPlugin(t);
+
+    const prisma = {
+      quiz: {
+        findMany: () => [quiz]
+      }
+    };
+    const response = await app.getQuizById({
+      prisma,
+      quizId: 1,
+      userId: 1
+    });
+    t.same(response, quiz);
+  });
+
+  t.test('should throw not found error when prisma return undefined', async (t) => {
+    const app = await buildQuizPlugin(t);
+
+    const prisma = {
+      quiz: {
+        findMany: () => [undefined]
+      }
+    };
+
+    await t.rejects(app.getQuizById({
+      prisma,
+      quizId: 1,
+      userId: 1
+    }), new Error('A quiz with id 1 does not exist'));
+  });
+
+  t.test('should throw internal error when prisma throws an error not mapped by the function', async (t) => {
+    const app = await buildQuizPlugin(t);
+
+    const prisma = {
+      quiz: {
+        findUnique: () => { throw new Error('error occurred'); }
+      }
+    };
+
+    await t.rejects(app.getQuizById({
+      prisma,
+      quizId: 1,
+      userId: 1
+    }), new Error('Internal Server Error'));
+  });
+});
+
+test('updateQuizNameById()', async (t) => {
+  t.plan(3);
+  t.test('should return the correct quiz updated', async (t) => {
+    const quiz = {
+      name: 'Guess my name',
+      questions: [
+        {
+          name: "What's your name?",
+          answers: [
+            {
+              name: 'Fabrizio',
+              isCorrect: true
+            },
+            {
+
+              name: 'Giovanni',
+              isCorrect: false
+            },
+            {
+
+              name: 'Marco',
+              isCorrect: false
+            },
+            {
+
+              name: 'Luca',
+              isCorrect: false
+            }
+          ]
+        }
+      ]
+    };
+    const app = await buildQuizPlugin(t);
+
+    const prisma = {
+      quiz: {
+        update: () => quiz
+      }
+    };
+    const response = await app.updateQuizNameById({
+      prisma,
+      id: 1,
+      name: 'New quiiz name',
+      userId: 1
+    });
+    t.same(response, quiz);
+  });
+
+  t.test('should throw not found error when prisma throws an error code P2025', async (t) => {
+    class CustomError extends Error {
+      constructor () {
+        super();
+        this.code = 'P2025';
+      }
+    }
+    const app = await buildQuizPlugin(t);
+
+    const prisma = {
+      quiz: {
+        update: () => { throw new CustomError(); }
+      }
+    };
+
+    await t.rejects(app.updateQuizNameById({
+      prisma,
+      id: 1,
+      name: 'New quiiz name',
+      userId: 1
+    }), new Error('A quiz with id 1 does not exis'));
+  });
+
+  t.test('should throw internal error when prisma throws an error not mapped by the function', async (t) => {
+    const app = await buildQuizPlugin(t);
+
+    const prisma = {
+      quiz: {
+        findUnique: () => { throw new Error('error occurred'); }
+      }
+    };
+
+    await t.rejects(app.updateQuizNameById({
+      prisma,
+      id: 1,
+      name: 'New quiiz name',
+      userId: 1
+    }), new Error('Internal Server Error'));
+  });
+});
+
+test('updateQuestionsAndAnswers()', async (t) => {
+  t.plan(3);
+  t.test('should throw a not found error when prisma.question.update throws an error P2025', async (t) => {
+    const quiz = {
+      name: 'Guess my name',
+      questions: [
+        {
+          name: "What's your name?",
+          answers: [
+            {
+              name: 'Fabrizio',
+              isCorrect: true
+            },
+            {
+
+              name: 'Giovanni',
+              isCorrect: false
+            },
+            {
+
+              name: 'Marco',
+              isCorrect: false
+            },
+            {
+
+              name: 'Luca',
+              isCorrect: false
+            }
+          ]
+        }
+      ]
+    };
+    class CustomError extends Error {
+      constructor () {
+        super();
+        this.code = 'P2025';
+      }
+    }
+    const app = await buildQuizPlugin(t);
+
+    const prisma = {
+      question: {
+        update: () => { throw new CustomError(); }
+      }
+    };
+
+    await t.rejects(app.updateQuestionsAndAnswers({
+      prisma,
+      questions: quiz.questions
+    }), new Error('Questions or answers not found'));
+  });
+
+  t.test('should throw a not found error when prisma.answer.update throws an error P2025', async (t) => {
+    const quiz = {
+      name: 'Guess my name',
+      questions: [
+        {
+          name: "What's your name?",
+          answers: [
+            {
+              name: 'Fabrizio',
+              isCorrect: true
+            },
+            {
+
+              name: 'Giovanni',
+              isCorrect: false
+            },
+            {
+
+              name: 'Marco',
+              isCorrect: false
+            },
+            {
+
+              name: 'Luca',
+              isCorrect: false
+            }
+          ]
+        }
+      ]
+    };
+    class CustomError extends Error {
+      constructor () {
+        super();
+        this.code = 'P2025';
+      }
+    }
+    const app = await buildQuizPlugin(t);
+
+    const prisma = {
+      question: {
+        update: () => {}
+      },
+      answer: {
+        update: () => { throw new CustomError(); }
+      }
+    };
+
+    await t.rejects(app.updateQuestionsAndAnswers({
+      prisma,
+      questions: quiz.questions
+    }), new Error('Questions or answers not found'));
+  });
+
+  t.test('should throw an internal error when prisma throws an error not mapped by the function', async (t) => {
+    const quiz = {
+      name: 'Guess my name',
+      questions: [
+        {
+          name: "What's your name?",
+          answers: [
+            {
+              name: 'Fabrizio',
+              isCorrect: true
+            },
+            {
+
+              name: 'Giovanni',
+              isCorrect: false
+            },
+            {
+
+              name: 'Marco',
+              isCorrect: false
+            },
+            {
+
+              name: 'Luca',
+              isCorrect: false
+            }
+          ]
+        }
+      ]
+    };
+
+    const app = await buildQuizPlugin(t);
+
+    const prisma = {
+      question: {
+        update: () => {}
+      },
+      answer: {
+        update: () => { throw new Error('error occurred'); }
+      }
+    };
+
+    await t.rejects(app.updateQuestionsAndAnswers({
+      prisma,
+      questions: quiz.questions
+    }), new Error('Internal Server Error'));
   });
 });

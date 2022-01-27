@@ -1,9 +1,16 @@
 
 import { test } from 'tap';
-import { build } from '../helper.js';
+import { buildQuizPlugin } from '../../helper.js';
 
 test('GET /quizzes route', async (t) => {
+  const user = {
+    email: 'fabrizio.lallo95@gmail.com',
+    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ',
+    createdAt: '2022-01-26T19:43:01.743Z',
+    updatedAt: '2022-01-26T19:43:01.747Z'
+  };
   t.plan(2);
+
   t.test('should return all the quizzes', async (t) => {
     const responseBody = [{
       id: 1,
@@ -30,14 +37,20 @@ test('GET /quizzes route', async (t) => {
         ]
       }]
     }];
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
         findMany: () => { return responseBody; }
+      },
+      user: {
+        findMany: () => [user]
       }
     });
     const response = await app.inject({
       method: 'GET',
-      url: '/quizzes'
+      url: '/quizzes',
+      headers: {
+        authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ'
+      }
     });
 
     const parsedResponse = response.json();
@@ -47,14 +60,20 @@ test('GET /quizzes route', async (t) => {
   });
 
   t.test('should return all the quizzes', async (t) => {
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
         findMany: () => []
+      },
+      user: {
+        findMany: () => [user]
       }
     });
     const response = await app.inject({
       method: 'GET',
-      url: '/quizzes'
+      url: '/quizzes',
+      headers: {
+        authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ'
+      }
 
     });
 

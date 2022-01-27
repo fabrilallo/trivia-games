@@ -12,7 +12,9 @@
     "dev": "fastify start -w -l info -P lib/app.js",
     "lint": "semistandard",
     "lint:fix": "semistandard --fix",
-    "commit": "cz"
+    "commit": "cz",
+    "prisma:migrate" : "cd lib/prisma && npx prisma migrate dev --name 'init' --preview-feature && node initUser.js",
+    "prisma:studio": "cd lib/prisma && npx prisma studio"
   },
   "type": "module",
   "keywords": [],
@@ -32,7 +34,8 @@
     "nyc-arg": [
       "--all",
       "--exclude=**/app.js",
-      "--exclude=**/prismaClient.js"
+      "--exclude=**/prismaClient.js",
+      "--exclude=**/initUser.js"
     ],
     "branches": "80",
     "lines": "80",
@@ -41,13 +44,17 @@
   },
   "dependencies": {
     "@prisma/client": "^3.8.1",
+    "bcrypt": "^5.0.1",
     "desm": "^1.2.0",
+    "dotenv": "^14.3.2",
     "fastify": "^3.0.0",
+    "fastify-auth": "^1.1.0",
     "fastify-autoload": "^3.10.0",
     "fastify-cli": "^2.15.0",
     "fastify-plugin": "^3.0.0",
     "fastify-sensible": "^3.1.2",
-    "fluent-schema": "^1.1.0"
+    "fluent-schema": "^1.1.0",
+    "jsonwebtoken": "^8.5.1"
   },
   "devDependencies": {
     "@istanbuljs/esm-loader-hook": "^0.1.2",

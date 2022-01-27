@@ -1,8 +1,15 @@
 
 import { test } from 'tap';
-import { build } from '../helper.js';
+import { buildQuizPlugin } from '../../helper.js';
 
 test('DELETE /quizzes/:id route', async (t) => {
+  const user = {
+    email: 'fabrizio.lallo95@gmail.com',
+    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ',
+    createdAt: '2022-01-26T19:43:01.743Z',
+    updatedAt: '2022-01-26T19:43:01.747Z'
+  };
+
   t.plan(1);
 
   const responseBody = {
@@ -38,14 +45,22 @@ test('DELETE /quizzes/:id route', async (t) => {
   };
 
   t.test('should return the quiz deleted', async (t) => {
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
-        delete: () => responseBody
+        delete: () => responseBody,
+        findMany: () => [responseBody]
+
+      },
+      user: {
+        findMany: () => [user]
       }
     });
     const response = await app.inject({
       method: 'DELETE',
-      url: '/quizzes/1'
+      url: '/quizzes/1',
+      headers: {
+        authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ'
+      }
     });
 
     const parsedResponse = response.json();

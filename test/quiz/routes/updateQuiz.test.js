@@ -1,8 +1,14 @@
 
 import { test } from 'tap';
-import { build } from '../helper.js';
+import { buildQuizPlugin } from '../../helper.js';
 
 test('PUT /quizzes/:id route', async (t) => {
+  const user = {
+    email: 'fabrizio.lallo95@gmail.com',
+    token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ',
+    createdAt: '2022-01-26T19:43:01.743Z',
+    updatedAt: '2022-01-26T19:43:01.747Z'
+  };
   t.plan(10);
 
   t.test('should update the quiz and return 200', async (t) => {
@@ -37,16 +43,22 @@ test('PUT /quizzes/:id route', async (t) => {
         }
       ]
     };
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
-        findUnique: () => body,
+        findMany: () => [body],
         update: () => {}
+      },
+      user: {
+        findMany: () => [user]
       }
     });
     const response = await app.inject({
       method: 'PUT',
       url: '/quizzes/1',
-      body
+      body,
+      headers: {
+        authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ'
+      }
     });
 
     const parsedResponse = response.json();
@@ -90,15 +102,22 @@ test('PUT /quizzes/:id route', async (t) => {
       name: 'Guess my name!!!'
     };
 
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
+        findMany: () => [body],
         update: () => responseBody
+      },
+      user: {
+        findMany: () => [user]
       }
     });
     const response = await app.inject({
       method: 'PUT',
       url: '/quizzes/1',
-      body
+      body,
+      headers: {
+        authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ'
+      }
     });
 
     const parsedResponse = response.json();
@@ -108,10 +127,13 @@ test('PUT /quizzes/:id route', async (t) => {
   });
 
   t.test('should update the questions', async (t) => {
-    const app = await build(t, {
+    const app = await buildQuizPlugin(t, {
       quiz: {
-        findUnique: () => body,
+        findMany: () => [body],
         update: () => {}
+      },
+      user: {
+        findMany: () => [user]
       }
     });
     const body = {
@@ -179,7 +201,10 @@ test('PUT /quizzes/:id route', async (t) => {
     const response = await app.inject({
       method: 'PUT',
       url: '/quizzes/1',
-      body
+      body,
+      headers: {
+        authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ'
+      }
     });
 
     const parsedResponse = response.json();
@@ -189,7 +214,12 @@ test('PUT /quizzes/:id route', async (t) => {
   });
 
   t.test('should return a bad request error because body is empty', async (t) => {
-    const app = await build(t);
+    const app = await buildQuizPlugin(t,
+      {
+        user: {
+          findMany: () => [user]
+        }
+      });
 
     const body = {
     };
@@ -197,7 +227,10 @@ test('PUT /quizzes/:id route', async (t) => {
     const response = await app.inject({
       method: 'PUT',
       url: '/quizzes/1',
-      body
+      body,
+      headers: {
+        authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ'
+      }
     });
 
     const parsedResponse = response.json();
@@ -207,7 +240,12 @@ test('PUT /quizzes/:id route', async (t) => {
   });
 
   t.test('should return a bad request error because questions must be an array', async (t) => {
-    const app = await build(t);
+    const app = await buildQuizPlugin(t,
+      {
+        user: {
+          findMany: () => [user]
+        }
+      });
 
     const body = {
       name: 'Guess my name',
@@ -216,7 +254,10 @@ test('PUT /quizzes/:id route', async (t) => {
     const response = await app.inject({
       method: 'PUT',
       url: '/quizzes/1',
-      body
+      body,
+      headers: {
+        authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ'
+      }
     });
 
     const parsedResponse = response.json();
@@ -225,7 +266,12 @@ test('PUT /quizzes/:id route', async (t) => {
   });
 
   t.test('should return a bad request error because questions array must have at least one element', async (t) => {
-    const app = await build(t);
+    const app = await buildQuizPlugin(t,
+      {
+        user: {
+          findMany: () => [user]
+        }
+      });
 
     const body = {
       name: 'Guess my name',
@@ -234,7 +280,10 @@ test('PUT /quizzes/:id route', async (t) => {
     const response = await app.inject({
       method: 'PUT',
       url: '/quizzes/1',
-      body
+      body,
+      headers: {
+        authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ'
+      }
     });
 
     const parsedResponse = response.json();
@@ -243,7 +292,12 @@ test('PUT /quizzes/:id route', async (t) => {
   });
 
   t.test('should return a bad request error because answers array must have 4 elements', async (t) => {
-    const app = await build(t);
+    const app = await buildQuizPlugin(t,
+      {
+        user: {
+          findMany: () => [user]
+        }
+      });
 
     const body = {
       name: 'Guess my name',
@@ -265,7 +319,10 @@ test('PUT /quizzes/:id route', async (t) => {
     const response = await app.inject({
       method: 'PUT',
       url: '/quizzes/1',
-      body
+      body,
+      headers: {
+        authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ'
+      }
     });
 
     const parsedResponse = response.json();
@@ -274,7 +331,12 @@ test('PUT /quizzes/:id route', async (t) => {
   });
 
   t.test('should return a bad request error because there are duplicated questions', async (t) => {
-    const app = await build(t);
+    const app = await buildQuizPlugin(t,
+      {
+        user: {
+          findMany: () => [user]
+        }
+      });
 
     const body = {
       name: 'Guess my name',
@@ -337,7 +399,10 @@ test('PUT /quizzes/:id route', async (t) => {
     const response = await app.inject({
       method: 'PUT',
       url: '/quizzes/1',
-      body
+      body,
+      headers: {
+        authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ'
+      }
     });
 
     const parsedResponse = response.json();
@@ -346,7 +411,11 @@ test('PUT /quizzes/:id route', async (t) => {
   });
 
   t.test('should return a bad request error because there is more than one correct answer', async (t) => {
-    const app = await build(t);
+    const app = await buildQuizPlugin(t, {
+      user: {
+        findMany: () => [user]
+      }
+    });
 
     const body = {
       name: 'Guess my name!!!',
@@ -383,7 +452,10 @@ test('PUT /quizzes/:id route', async (t) => {
     const response = await app.inject({
       method: 'PUT',
       url: '/quizzes/1',
-      body
+      body,
+      headers: {
+        authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ'
+      }
     });
 
     const parsedResponse = response.json();
@@ -392,7 +464,11 @@ test('PUT /quizzes/:id route', async (t) => {
   });
 
   t.test('should return a bad request error because there are 2 answer with same name and different isCorrect values', async (t) => {
-    const app = await build(t);
+    const app = await buildQuizPlugin(t, {
+      user: {
+        findMany: () => [user]
+      }
+    });
 
     const body = {
       name: 'Guess my name!!!',
@@ -429,7 +505,10 @@ test('PUT /quizzes/:id route', async (t) => {
     const response = await app.inject({
       method: 'PUT',
       url: '/quizzes/1',
-      body
+      body,
+      headers: {
+        authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6OCwiaWF0IjoxNjQzMjI2MTgxLCJleHAiOjE2NDM0ODUzODF9.qDxE0OObUWXlSTTYWP19rBT8XJOcfUJhA4OHgxTvXYQ'
+      }
     });
 
     const parsedResponse = response.json();

@@ -1,7 +1,7 @@
 
 import { test } from 'tap';
 import Fastify from 'fastify';
-import quizValidator from '../../lib/plugins/quizValidator.js';
+import quizValidator from '../../../lib/quiz/plugins/quizValidator.js';
 test('getDuplicatedItems()', async (t) => {
   const fastify = Fastify();
   fastify.register(quizValidator);
